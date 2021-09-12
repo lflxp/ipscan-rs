@@ -1,6 +1,6 @@
 //! This module is used for validating the input arguments
 
-use crate::network_operator::InputType;
+use crate::ping::network_operator::InputType;
 
 const DEBUG: bool = false;
 const VAILD_LENGTH: usize = 2;
