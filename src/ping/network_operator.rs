@@ -1,5 +1,6 @@
 //! This module is used for handling operations related to networking
 
+use std::error::Error;
 use std::thread;
 use std::time;
 use oping::{Ping, PingResult};
@@ -113,7 +114,7 @@ pub fn ping(address: &str) {
 /**
  * This function prints the result of pings to the terminal
  */
-fn print_result(tt: Stopwatch) {
+pub async fn print_result(tt: Stopwatch) {
     println!("--- Ping result ---");
     unsafe {
         println!("TOTAL  : {} packets", SUCCESS + FAILURE);
@@ -125,7 +126,7 @@ fn print_result(tt: Stopwatch) {
     }
 }
 
-pub fn ping2(address: Vec<String>) -> PingResult<()>{
+pub fn ping2(address: Vec<String>) -> PingResult<()> {
     let start = Stopwatch::start_new();
     unsafe {
         for addr in address.iter() {
@@ -160,7 +161,6 @@ pub fn ping2(address: Vec<String>) -> PingResult<()>{
 
     // print result
     print_result(start);
-
     Ok(())
 }
 
@@ -201,4 +201,47 @@ pub fn ping3(address: Vec<String>) -> PingResult<()>{
     print_result(start);
 
     Ok(())
+}
+
+// async spawn process
+async fn ping6(address: &str) -> PingResult<()>{
+    // create ICMP packet using external library oping
+    // while searching for external rust libraries, I realized
+    // many of them are not being updated anymore or was abandoned.
+    let mut ping = Ping::new();
+    
+    // max wait time is 5 seconds
+    ping.set_timeout(0.1)?;
+
+        // println!("ip is |{}|", addr);
+    ping.add_host(address)?;        
+
+    // send ICMP packet
+    let responses = ping.send()?;
+
+    unsafe {
+        // check response and update result
+        for response in responses {
+            if response.dropped > 0 {
+                println!("No response from host {} (loss)", response.address);
+                FAILURE += 1;
+            } else {
+                // display success result
+                println!("Response from host {} (address {}): latency {} ms", response.hostname, response.address, response.latency_ms);
+                SUCCESS += 1;
+                TIME += response.latency_ms;
+            }
+
+            // if response.dropped <= 0 {
+            //     println!("Response from host {} (address {}): latency {} ms", response.hostname, response.address, response.latency_ms);
+            // }
+        }
+    }
+
+    Ok(())
+}
+
+pub async fn ping6run(addr: &str) {
+    // 不处理错误
+    ping6(addr).await.unwrap();
 }
