@@ -7,3 +7,6 @@ edition = "2018"
 
 [dependencies]
 futures = "0.3.4"
+oping = "0.3.3"
+ctrlc = "3.0"
+stopwatch= "0.0.7"

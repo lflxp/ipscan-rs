@@ -91,7 +91,7 @@ pub mod scan {
 		for y in b.clone() {
 			for z in c.clone() {
 				for g in d.clone() {
-					data.push(format!("{}.{}.{}.{}\n",x,y,z,g));
+					data.push(format!("{}.{}.{}.{}",x,y,z,g));
 					// if y%18 == 0 {
 					// 	print!("push {}.{}.{}.{}\n",x,y,z,g);
 					// }
